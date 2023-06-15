@@ -1172,22 +1172,27 @@ impl AuthorityState {
         let _metrics_guard = self.metrics.prepare_certificate_latency.start_timer();
 
         // check_certificate_input also checks shared object locks when loading the shared objects.
-        let (gas_status, input_objects) = transaction_input_checker::check_certificate_input(
-            &self.database,
-            epoch_store,
-            certificate,
-        )
-        .await?;
+        let (gas_status, input_objects, deleted_shared_objects) =
+            transaction_input_checker::check_certificate_input(
+                &self.database,
+                epoch_store,
+                certificate,
+            )
+            .await?;
 
         let owned_object_refs = input_objects.filter_owned_objects();
         self.check_owned_locks(&owned_object_refs).await?;
         let tx_digest = *certificate.digest();
         let protocol_config = epoch_store.protocol_config();
         let shared_object_refs = input_objects.filter_shared_objects();
-        let transaction_dependencies = input_objects.transaction_dependencies();
+
+        let mut transaction_dependencies = input_objects.transaction_dependencies();
+
         let transaction_data = &certificate.data().intent_message().value;
         let (kind, signer, gas) = transaction_data.execution_parts();
-        let (inner_temp_store, effects, execution_error_opt) =
+
+        let (inner_temp_store, effects, execution_error_opt) = if deleted_shared_objects.is_empty()
+        {
             epoch_store.executor().execute_transaction_to_effects(
                 self.database.clone(),
                 protocol_config,
@@ -1210,7 +1215,30 @@ impl AuthorityState {
                 signer,
                 tx_digest,
                 transaction_dependencies,
-            );
+            )
+        } else {
+            // insert transaction digests that deleted a shared object that this transaction had
+            // as input but no longer exists due to sequencing order into transaction dependencies
+            for (_, digest) in deleted_shared_objects {
+                transaction_dependencies.insert(digest);
+            }
+
+            epoch_store.executor().commit_transaction_without_execution(
+                self.database.clone(),
+                protocol_config,
+                self.expensive_safety_check_config
+                    .enable_deep_per_tx_sui_conservation_check(),
+                &epoch_store.epoch_start_config().epoch_data().epoch_id(),
+                input_objects,
+                shared_object_refs,
+                gas,
+                gas_status,
+                kind,
+                signer,
+                tx_digest,
+                transaction_dependencies,
+            )
+        };
 
         Ok((inner_temp_store, effects, execution_error_opt.err()))
     }

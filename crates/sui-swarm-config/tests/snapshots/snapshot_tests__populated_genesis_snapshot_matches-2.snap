@@ -240,6 +240,7 @@ validators:
         next_epoch_worker_address: ~
         extra_fields:
           id:
+<<<<<<< HEAD
             id: "0xa1c99e7cc30c04be930036ac576d6ef73a14b8d873c2cc0fd00abb33e2d91aa8"
           size: 0
       voting_power: 10000
@@ -247,6 +248,15 @@ validators:
       gas_price: 1000
       staking_pool:
         id: "0x45b2fd669aa4baf1e71febb7045c9f7cfb0bac8f9fd7b547df7d424efa4ecfc0"
+=======
+            id: "0xcebf3a7865c9c12e2562bd1bdb55146bfe63d6bbffec4f486cc96d7eb3d8ea3d"
+          size: 0
+      voting_power: 10000
+      operation_cap_id: "0x14e99315fa5e9843af9840b73bb7fdca1bbd8d17b88d7d2f5cd8971f5a676763"
+      gas_price: 1000
+      staking_pool:
+        id: "0x8146773d5b3f65c9d26a9837df89e3e5ef0231ee0be951970dfdb27ea5655f56"
+>>>>>>> 18c7007ebe (allow passing shared objects by value)
         activation_epoch: 0
         deactivation_epoch: ~
         sui_balance: 20000000000000000
@@ -254,14 +264,22 @@ validators:
           value: 0
         pool_token_balance: 20000000000000000
         exchange_rates:
+<<<<<<< HEAD
           id: "0x8a782bbe917dd44ca9d83128f54b4526ba5a357e577926da92692702615a7314"
+=======
+          id: "0xaf2762ee12ca0db86c958158967bdfe5324a12212a771564227e60aacac25a08"
+>>>>>>> 18c7007ebe (allow passing shared objects by value)
           size: 1
         pending_stake: 0
         pending_total_sui_withdraw: 0
         pending_pool_token_withdraw: 0
         extra_fields:
           id:
+<<<<<<< HEAD
             id: "0xd5df0820716c876092720f1d81049557f4a721d8394c98f287c8b2d7c2e71bfa"
+=======
+            id: "0x857e98cd11112caa99c4e5553b7bd996ba6480bc81d32505df090868d60067a8"
+>>>>>>> 18c7007ebe (allow passing shared objects by value)
           size: 0
       commission_rate: 200
       next_epoch_stake: 20000000000000000
@@ -269,6 +287,7 @@ validators:
       next_epoch_commission_rate: 200
       extra_fields:
         id:
+<<<<<<< HEAD
           id: "0x0c87536a3295a77b55de1894a24ab8952e2c5f069e307444a0e4edb671e1a154"
         size: 0
   pending_active_validators:
@@ -284,12 +303,33 @@ validators:
     size: 0
   validator_candidates:
     id: "0xf833fc32ca4ea00745af757c749dad201df94d9686ca39d8fcc3b1c18f08f997"
+=======
+          id: "0xede29a6b7b94dc1addd9ba90dae1a1114c36814955703c217d7d01d8e2fd9738"
+        size: 0
+  pending_active_validators:
+    contents:
+      id: "0xd8f5a8ab4a24e86bd6a54df97c5f9d21fdf9852c4fae8e440d60cbdee94b2800"
+      size: 0
+  pending_removals: []
+  staking_pool_mappings:
+    id: "0x686053b9e24b9299c96e555a03b3195375da6c0419f2daa4a14c08b1a382a21f"
+    size: 1
+  inactive_validators:
+    id: "0x9cd1aaa8671cc700895699dec1a232ad46f5b89196bcdda53f031fe12cc2f774"
+    size: 0
+  validator_candidates:
+    id: "0x26e33a783546e40d62cfd0ca46a6b0e32003e3e0cde19f3f190c6e619d0df2e9"
+>>>>>>> 18c7007ebe (allow passing shared objects by value)
     size: 0
   at_risk_validators:
     contents: []
   extra_fields:
     id:
+<<<<<<< HEAD
       id: "0x4c70b95907dfc58f5c6faeb1bf4fb1f98edacbfd33f737a84a24b32e1a3e2742"
+=======
+      id: "0x0c3de0d3b2254f69e986adaa15200d439edbababd640bcf04aae2e6ca7c6cf82"
+>>>>>>> 18c7007ebe (allow passing shared objects by value)
     size: 0
 storage_fund:
   total_object_storage_rebates:
@@ -306,7 +346,11 @@ parameters:
   validator_low_stake_grace_period: 7
   extra_fields:
     id:
+<<<<<<< HEAD
       id: "0xb51f00726c5fd2623fcc286ea6cfdc552a356c76be2071fc28793f3887309e2d"
+=======
+      id: "0x81619837ab80827c84250edd82c1f730e194dbf37a826e4841309743b0767852"
+>>>>>>> 18c7007ebe (allow passing shared objects by value)
     size: 0
 reference_gas_price: 1000
 validator_report_records:
@@ -320,7 +364,11 @@ stake_subsidy:
   stake_subsidy_decrease_rate: 1000
   extra_fields:
     id:
+<<<<<<< HEAD
       id: "0x713ebd028930159dbfaa25e5d7a9b69b6b3b731cba0885ffc542e2dbd28a42dd"
+=======
+      id: "0xc33e1e7187e401a774dc78b833b6234232bcf35a5f254eb099f08e35945cd00c"
+>>>>>>> 18c7007ebe (allow passing shared objects by value)
     size: 0
 safe_mode: false
 safe_mode_storage_rewards:
@@ -332,6 +380,10 @@ safe_mode_non_refundable_storage_fee: 0
 epoch_start_timestamp_ms: 10
 extra_fields:
   id:
+<<<<<<< HEAD
     id: "0xb800153f80067e443d649592e0598335988c5fb42602f776b1304804e03024a1"
+=======
+    id: "0xdbe25cef007cc63f1263a39d22e1815fa66dfbf6ef011f6faa48e41660ba1c5d"
+>>>>>>> 18c7007ebe (allow passing shared objects by value)
   size: 0
 

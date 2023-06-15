@@ -37,6 +37,8 @@ use sui_types::{
 };
 use sui_types::{is_system_package, SUI_SYSTEM_STATE_OBJECT_ID};
 
+pub type DeletedSharedObjects = BTreeMap<ObjectID, TransactionDigest>;
+
 pub struct TemporaryStore<'backing> {
     // The backing store for retrieving Move packages onchain.
     // When executing a Move call, the dependent packages are not going to be
@@ -246,7 +248,6 @@ impl<'backing> TemporaryStore<'backing> {
                 modified_at_versions.push((*id, version));
             }
         });
-
         let protocol_version = self.protocol_config.version;
         let inner = self.into_inner();
 
@@ -1018,6 +1019,7 @@ impl<'backing> Storage for TemporaryStore<'backing> {
                 };
             object_changes.insert(id, ObjectChange::Delete(delete_kind));
         }
+
         for (id, (version, _)) in results.objects_modified_at {
             object_changes.entry(id).or_insert(ObjectChange::Delete(
                 DeleteKindWithOldVersion::Wrap(version),

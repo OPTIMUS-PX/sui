@@ -1370,6 +1370,7 @@
                 "package_upgrades": true,
                 "scoring_decision_with_validity_cutoff": true,
                 "simple_conservation_checks": false,
+                "shared_object_deletion": false,
                 "simplified_unwrap_then_delete": false,
                 "txn_base_cost_as_multiplier": false,
                 "upgraded_multisig_supported": false,

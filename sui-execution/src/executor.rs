@@ -80,6 +80,31 @@ pub trait Executor {
         Result<Vec<ExecutionResult>, ExecutionError>,
     );
 
+    fn commit_transaction_without_execution<'backing>(
+        &self,
+        store: Arc<dyn BackingStore + Send + Sync + 'backing>,
+        // Configuration
+        protocol_config: &ProtocolConfig,
+        enable_expensive_checks: bool,
+        // Epoch
+        epoch_id: &EpochId,
+        // Transaction Inputs
+        input_objects: InputObjects,
+        shared_object_refs: Vec<ObjectRef>,
+        // Gas related
+        gas_coins: Vec<ObjectRef>,
+        gas_status: SuiGasStatus,
+        // Transaction
+        transaction_kind: TransactionKind,
+        transaction_signer: SuiAddress,
+        transaction_digest: TransactionDigest,
+        transaction_dependencies: BTreeSet<TransactionDigest>,
+    ) -> (
+        InnerTemporaryStore,
+        TransactionEffects,
+        Result<(), ExecutionError>,
+    );
+
     fn update_genesis_state(
         &self,
         store: Arc<dyn BackingStore + Send + Sync>,

@@ -533,7 +533,6 @@ impl ObjectRuntimeState {
                 loaded_child.is_modified = true;
             }
         }
-
         Ok(RuntimeResults {
             writes: written_objects,
             user_events,

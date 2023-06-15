@@ -28,6 +28,7 @@ use move_vm_runtime_latest::move_vm::MoveVM;
 use sui_adapter_latest::adapter::{
     default_verifier_config, new_move_vm, run_metered_move_bytecode_verifier,
 };
+use sui_adapter_latest::execution_engine::commit_transaction_without_execution;
 use sui_adapter_latest::execution_engine::execute_transaction_to_effects;
 use sui_adapter_latest::gas_charger::GasCharger;
 use sui_adapter_latest::programmable_transactions;
@@ -168,6 +169,47 @@ impl executor::Executor for Executor {
             metrics,
             enable_expensive_checks,
             certificate_deny_set,
+        )
+    }
+
+    fn commit_transaction_without_execution<'backing>(
+        &self,
+        store: Arc<dyn BackingStore + Send + Sync + 'backing>,
+        // Configuration
+        protocol_config: &ProtocolConfig,
+        enable_expensive_checks: bool,
+        // Epoch
+        epoch_id: &EpochId,
+        // Transaction Inputs
+        input_objects: InputObjects,
+        shared_object_refs: Vec<ObjectRef>,
+        // Gas related
+        gas_coins: Vec<ObjectRef>,
+        gas_status: SuiGasStatus,
+        // Transaction
+        transaction_kind: TransactionKind,
+        transaction_signer: SuiAddress,
+        transaction_digest: TransactionDigest,
+        transaction_dependencies: BTreeSet<TransactionDigest>,
+    ) -> (
+        InnerTemporaryStore,
+        TransactionEffects,
+        Result<(), ExecutionError>,
+    ) {
+        let temporary_store =
+            TemporaryStore::new(store, input_objects, transaction_digest, protocol_config);
+        let mut gas_charger =
+            GasCharger::new(transaction_digest, gas_coins, gas_status, protocol_config);
+        commit_transaction_without_execution::<execution_mode::Normal>(
+            shared_object_refs,
+            temporary_store,
+            transaction_kind,
+            transaction_signer,
+            &mut gas_charger,
+            transaction_digest,
+            transaction_dependencies,
+            epoch_id,
+            enable_expensive_checks,
         )
     }
 
