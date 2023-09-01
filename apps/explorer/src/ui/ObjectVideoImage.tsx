@@ -48,7 +48,7 @@ export function ObjectVideoImage({
 	variant,
 	open,
 	setOpen,
-    rounded = 'md',
+	rounded = 'md',
 	disablePreview,
 }: Props) {
 	const close = () => {
