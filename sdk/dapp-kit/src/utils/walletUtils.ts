@@ -41,7 +41,7 @@ export async function setMostRecentWalletConnectionInfo({
 	try {
 		await storageAdapter.set(
 			storageKey,
-			`${walletName}-${accountAddress ?? 'noSelectedAccountStoragePlaceholder'}`,
+			`${walletName}-${accountAddress ?? noSelectedAccountStoragePlaceholder}`,
 		);
 	} catch (error) {
 		// We'll skip error handling here and just report the error to the console since persisting connection
