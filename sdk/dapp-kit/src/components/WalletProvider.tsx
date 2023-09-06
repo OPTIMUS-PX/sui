@@ -2,15 +2,20 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Dispatch, ReactNode } from 'react';
-import { createContext, useContext, useMemo, useReducer } from 'react';
+import { createContext, useContext, useEffect, useMemo, useReducer } from 'react';
 import { getWallets } from '@mysten/wallet-standard';
 import { localStorageAdapter } from '../utils/storageAdapters.js';
 import type { StorageAdapter } from '../utils/storageAdapters.js';
 import { walletReducer } from '../reducers/walletReducer.js';
 import type { WalletAction, WalletState } from '../reducers/walletReducer.js';
+<<<<<<< HEAD
 import { sortWallets } from '../utils/walletUtils.js';
 import { useUnsafeBurnerWallet } from '../hooks/wallet/useUnsafeBurnerWallet.js';
 import { useWalletsChanged } from '../hooks/wallet/useWalletsChanged.js';
+=======
+import { getMostRecentWalletConnectionInfo, sortWallets } from '../utils/walletUtils.js';
+import { useConnectWallet } from '../hooks/wallet/useConnectWallet.js';
+>>>>>>> 0920abea80 (autoconnect)
 
 interface WalletProviderProps {
 	/** A list of wallets that are sorted to the top of the wallet list, if they are available to connect to. By default, wallets are sorted by the order they are loaded in. */
@@ -51,6 +56,7 @@ export function WalletProvider({
 	storageAdapter = localStorageAdapter,
 	storageKey = DEFAULT_STORAGE_KEY,
 	enableUnsafeBurner = false,
+	autoConnect = false,
 	children,
 }: WalletProviderProps) {
 	const walletsApi = getWallets();
@@ -91,7 +97,15 @@ export function WalletProvider({
 		() => ({ ...walletState, storageAdapter, storageKey, dispatch }),
 		[storageAdapter, storageKey, walletState],
 	);
-	return <WalletContext.Provider value={contextValue}>{children}</WalletContext.Provider>;
+	return (
+		<WalletContext.Provider value={contextValue}>
+			{autoConnect && !walletState.currentWallet ? (
+				<AutoConnectWalletContainer>{children}</AutoConnectWalletContainer>
+			) : (
+				children
+			)}
+		</WalletContext.Provider>
+	);
 }
 
 export function useWalletContext() {
@@ -102,4 +116,20 @@ export function useWalletContext() {
 		);
 	}
 	return context;
+}
+
+function AutoConnectWalletContainer({ children }: { children: ReactNode }) {
+	const { mutate: connectWallet } = useConnectWallet();
+	const { storageAdapter, storageKey } = useWalletContext();
+
+	useEffect(() => {
+		(async function autoConnectWallet() {
+			const { walletName } = await getMostRecentWalletConnectionInfo(storageAdapter, storageKey);
+			if (walletName) {
+				connectWallet({ walletName, silent: true });
+			}
+		})();
+	}, [connectWallet, storageAdapter, storageKey]);
+
+	return <>{children}</>;
 }
