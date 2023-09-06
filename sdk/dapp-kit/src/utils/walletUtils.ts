@@ -58,10 +58,11 @@ export async function getMostRecentWalletConnectionInfo(
 		const lastWalletConnectionInfo = await storageAdapter.get(storageKey);
 		if (lastWalletConnectionInfo) {
 			const [walletName, accountAddress] = lastWalletConnectionInfo.split('-');
+			const isMissingAccountAddress = accountAddress === noSelectedAccountStoragePlaceholder;
+
 			return {
 				walletName,
-				accountAddress:
-					accountAddress === noSelectedAccountStoragePlaceholder ? undefined : accountAddress,
+				accountAddress: isMissingAccountAddress ? undefined : accountAddress,
 			};
 		}
 	} catch (error) {
