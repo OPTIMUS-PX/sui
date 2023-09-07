@@ -5366,11 +5366,11 @@
         "description": "Necessary value for claim.",
         "type": "object",
         "required": [
-          "index_mod_4",
+          "indexMod4",
           "value"
         ],
         "properties": {
-          "index_mod_4": {
+          "indexMod4": {
             "type": "integer",
             "format": "uint8",
             "minimum": 0.0
@@ -10497,22 +10497,22 @@
         "description": "All inputs required for the zk login proof verification and other auxiliary inputs.",
         "type": "object",
         "required": [
-          "address_seed",
-          "header_base64",
-          "iss_base64_details",
-          "proof_points"
+          "addressSeed",
+          "headerBase64",
+          "issBase64Details",
+          "proofPoints"
         ],
         "properties": {
-          "address_seed": {
+          "addressSeed": {
             "type": "string"
           },
-          "header_base64": {
+          "headerBase64": {
             "type": "string"
           },
-          "iss_base64_details": {
+          "issBase64Details": {
             "$ref": "#/components/schemas/Claim"
           },
-          "proof_points": {
+          "proofPoints": {
             "$ref": "#/components/schemas/ZkLoginProof"
           }
         }
@@ -10521,12 +10521,12 @@
         "description": "The zk login proof.",
         "type": "object",
         "required": [
-          "pi_a",
-          "pi_b",
-          "pi_c"
+          "a",
+          "b",
+          "c"
         ],
         "properties": {
-          "pi_a": {
+          "a": {
             "type": "array",
             "items": {
               "type": "string"
@@ -10534,7 +10534,7 @@
             "maxItems": 3,
             "minItems": 3
           },
-          "pi_b": {
+          "b": {
             "type": "array",
             "items": {
               "type": "array",
@@ -10547,7 +10547,7 @@
             "maxItems": 3,
             "minItems": 3
           },
-          "pi_c": {
+          "c": {
             "type": "array",
             "items": {
               "type": "string"

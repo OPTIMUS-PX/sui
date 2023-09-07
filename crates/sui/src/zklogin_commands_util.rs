@@ -3,8 +3,9 @@
 
 use anyhow::anyhow;
 use fastcrypto::traits::EncodeDecodeBase64;
-use fastcrypto_zkp::bn254::utils::get_zk_login_address;
+use fastcrypto_zkp::bn254::utils::{get_zk_login_address, gen_address_seed};
 use fastcrypto_zkp::bn254::utils::{get_proof, get_salt};
+use fastcrypto_zkp::bn254::zk_login::ZkLoginInputs;
 use regex::Regex;
 use reqwest::Client;
 use serde_json::json;
@@ -70,7 +71,7 @@ pub async fn perform_zk_login_test_tx(
         .await
         .map_err(|_| anyhow!("Failed to get salt"))?;
     println!("User salt: {user_salt}");
-    let mut zk_login_inputs = get_proof(
+    let reader = get_proof(
         parsed_token,
         max_epoch,
         jwt_randomness,
@@ -80,8 +81,9 @@ pub async fn perform_zk_login_test_tx(
     .await
     .map_err(|_| anyhow!("Failed to get salt"))?;
     println!("ZkLogin inputs:");
-    println!("{:?}", serde_json::to_string(&zk_login_inputs).unwrap());
-    zk_login_inputs.init()?;
+    println!("{:?}", serde_json::to_string(&reader).unwrap());
+    let address_seed = gen_address_seed(&user_salt, "sub", "904448692", "rs1bh065i9ya4ydvifixl4kss0uhpt")?;
+    let zk_login_inputs = ZkLoginInputs::from_reader(reader, address_seed)?;
     let zklogin_address = SuiAddress::from_bytes(get_zk_login_address(
         zk_login_inputs.get_address_seed(),
         zk_login_inputs.get_iss(),

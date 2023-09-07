@@ -503,8 +503,8 @@ move-stackless-bytecode = { path = "external-crates/move/move-prover/bytecode" }
 move-symbol-pool = { path = "external-crates/move/move-symbol-pool" }
 move-abstract-stack = { path = "external-crates/move/move-abstract-stack" }
 
-fastcrypto = { git = "https://github.com/MystenLabs/fastcrypto", rev = "d3a2e147a123679491993c802d5cc0452a9b8dff" }
-fastcrypto-zkp = { git = "https://github.com/MystenLabs/fastcrypto", rev = "d3a2e147a123679491993c802d5cc0452a9b8dff", package = "fastcrypto-zkp" }
+fastcrypto = { git = "https://github.com/MystenLabs/fastcrypto", rev = "cfa42898231e70f42f7d3006e433a5d36e62ac82" }
+fastcrypto-zkp = { git = "https://github.com/MystenLabs/fastcrypto", rev = "cfa42898231e70f42f7d3006e433a5d36e62ac82", package = "fastcrypto-zkp" }
 
 # anemo dependencies
 anemo = { git = "https://github.com/mystenlabs/anemo.git", rev = "1169850e6af127397068cd86764c29b1d49dbe35" }
