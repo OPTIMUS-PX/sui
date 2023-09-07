@@ -5367,8 +5367,7 @@
         "type": "object",
         "required": [
           "index_mod_4",
-          "name",
-          "value_base64"
+          "value"
         ],
         "properties": {
           "index_mod_4": {
@@ -5376,10 +5375,7 @@
             "format": "uint8",
             "minimum": 0.0
           },
-          "name": {
-            "type": "string"
-          },
-          "value_base64": {
+          "value": {
             "type": "string"
           }
         }
@@ -10502,22 +10498,19 @@
         "type": "object",
         "required": [
           "address_seed",
-          "claims",
           "header_base64",
+          "iss_base64_details",
           "proof_points"
         ],
         "properties": {
           "address_seed": {
             "type": "string"
           },
-          "claims": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Claim"
-            }
-          },
           "header_base64": {
             "type": "string"
+          },
+          "iss_base64_details": {
+            "$ref": "#/components/schemas/Claim"
           },
           "proof_points": {
             "$ref": "#/components/schemas/ZkLoginProof"
@@ -10537,7 +10530,9 @@
             "type": "array",
             "items": {
               "type": "string"
-            }
+            },
+            "maxItems": 3,
+            "minItems": 3
           },
           "pi_b": {
             "type": "array",
@@ -10545,14 +10540,20 @@
               "type": "array",
               "items": {
                 "type": "string"
-              }
-            }
+              },
+              "maxItems": 2,
+              "minItems": 2
+            },
+            "maxItems": 3,
+            "minItems": 3
           },
           "pi_c": {
             "type": "array",
             "items": {
               "type": "string"
-            }
+            },
+            "maxItems": 3,
+            "minItems": 3
           }
         }
       }

@@ -154,7 +154,7 @@ pub fn mock_certified_checkpoint<'a>(
 }
 
 mod zk_login {
-    use fastcrypto_zkp::bn254::{utils::big_int_str_to_bytes, zk_login::ZkLoginInputs};
+    use fastcrypto_zkp::bn254::zk_login::ZkLoginInputs;
 
     use super::*;
 
@@ -168,11 +168,13 @@ mod zk_login {
     pub fn get_zklogin_user_address() -> SuiAddress {
         thread_local! {
             static USER_ADDRESS: SuiAddress = {
-                // Derive user address manually: Blake2b_256 hash of [zklogin_flag || bcs bytes of AddressParams || address seed in bytes])
+                // Derive user address manually: Blake2b_256 hash of [zklogin_flag || iss_bytes_length || iss_bytes || address seed in bytes])
                 let mut hasher = DefaultHash::default();
                 hasher.update([SignatureScheme::ZkLoginAuthenticator.flag()]);
-                hasher.update(bcs::to_bytes(&get_inputs().get_address_params()).unwrap());
-                hasher.update(big_int_str_to_bytes(get_inputs().get_address_seed()));
+                let inputs = get_inputs();
+                let iss_bytes = inputs.get_iss().as_bytes();
+                hasher.update([iss_bytes.len() as u8]);
+                hasher.update(iss_bytes);
                 SuiAddress::from_bytes(hasher.finalize().digest).unwrap()
             };
         }

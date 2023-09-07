@@ -8,7 +8,7 @@ use crate::{
     signature::{AuthenticatorTrait, VerifyParams},
 };
 use fastcrypto::{error::FastCryptoError, traits::ToFromBytes};
-use fastcrypto_zkp::bn254::zk_login::{AddressParams, OIDCProvider};
+use fastcrypto_zkp::bn254::zk_login::OIDCProvider;
 use fastcrypto_zkp::bn254::{zk_login::ZkLoginInputs, zk_login_api::verify_zk_login};
 use once_cell::sync::OnceCell;
 use schemars::JsonSchema;
@@ -50,8 +50,8 @@ impl ZkLoginAuthenticator {
         self.inputs.get_address_seed()
     }
 
-    pub fn get_address_params(&self) -> AddressParams {
-        self.inputs.get_address_params()
+    pub fn get_iss(&self) -> &str {
+        self.inputs.get_iss()
     }
 }
 
