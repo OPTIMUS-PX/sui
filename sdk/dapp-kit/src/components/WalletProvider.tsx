@@ -8,14 +8,10 @@ import { localStorageAdapter } from '../utils/storageAdapters.js';
 import type { StorageAdapter } from '../utils/storageAdapters.js';
 import { walletReducer } from '../reducers/walletReducer.js';
 import type { WalletAction, WalletState } from '../reducers/walletReducer.js';
-<<<<<<< HEAD
-import { sortWallets } from '../utils/walletUtils.js';
 import { useUnsafeBurnerWallet } from '../hooks/wallet/useUnsafeBurnerWallet.js';
 import { useWalletsChanged } from '../hooks/wallet/useWalletsChanged.js';
-=======
 import { getMostRecentWalletConnectionInfo, sortWallets } from '../utils/walletUtils.js';
 import { useConnectWallet } from '../hooks/wallet/useConnectWallet.js';
->>>>>>> 0920abea80 (autoconnect)
 
 interface WalletProviderProps {
 	/** A list of wallets that are sorted to the top of the wallet list, if they are available to connect to. By default, wallets are sorted by the order they are loaded in. */
