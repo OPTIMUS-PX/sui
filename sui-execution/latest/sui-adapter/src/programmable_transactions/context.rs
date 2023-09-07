@@ -5,7 +5,7 @@ pub use checked::*;
 
 #[sui_macros::with_checked_arithmetic]
 mod checked {
-    use std::collections::BTreeSet;
+    use std::collections::{BTreeSet, HashSet};
     use std::{
         collections::{BTreeMap, HashMap},
         sync::Arc,
@@ -697,7 +697,7 @@ mod checked {
             // Sui Move no longer uses Move's internal event system
             assert_invariant!(events.is_empty(), "Events must be empty");
             let object_runtime: ObjectRuntime = native_context_extensions.remove();
-            let external_transfers: Vec<_> = additional_writes.keys().copied().collect();
+            let external_transfers = additional_writes.keys().copied().collect::<HashSet<_>>();
             let RuntimeResults {
                 writes,
                 user_events: remaining_events,
