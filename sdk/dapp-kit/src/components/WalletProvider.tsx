@@ -2,15 +2,16 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Dispatch, ReactNode } from 'react';
-import { createContext, useContext, useEffect, useMemo, useReducer } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useReducer } from 'react';
+import type { Wallet } from '@mysten/wallet-standard';
 import { getWallets } from '@mysten/wallet-standard';
 import { localStorageAdapter } from '../utils/storageAdapters.js';
 import type { StorageAdapter } from '../utils/storageAdapters.js';
 import { walletReducer } from '../reducers/walletReducer.js';
 import type { WalletAction, WalletState } from '../reducers/walletReducer.js';
+import { getMostRecentWalletConnectionInfo, sortWallets } from '../utils/walletUtils.js';
 import { useUnsafeBurnerWallet } from '../hooks/wallet/useUnsafeBurnerWallet.js';
 import { useWalletsChanged } from '../hooks/wallet/useWalletsChanged.js';
-import { getMostRecentWalletConnectionInfo, sortWallets } from '../utils/walletUtils.js';
 import { useConnectWallet } from '../hooks/wallet/useConnectWallet.js';
 
 interface WalletProviderProps {
@@ -65,16 +66,17 @@ export function WalletProvider({
 		connectionStatus: 'disconnected',
 	});
 
-	useWalletsChanged({
-		onWalletRegistered() {
-			dispatch({
-				type: 'wallet-registered',
-				payload: {
-					updatedWallets: sortWallets(walletsApi.get(), preferredWallets, requiredFeatures),
-				},
-			});
-		},
-		onWalletUnregistered(unregisteredWallet) {
+	const onWalletRegistered = useCallback(() => {
+		dispatch({
+			type: 'wallet-registered',
+			payload: {
+				updatedWallets: sortWallets(walletsApi.get(), preferredWallets, requiredFeatures),
+			},
+		});
+	}, [preferredWallets, requiredFeatures, walletsApi]);
+
+	const onWalletUnregistered = useCallback(
+		(unregisteredWallet: Wallet) => {
 			dispatch({
 				type: 'wallet-unregistered',
 				payload: {
@@ -83,6 +85,12 @@ export function WalletProvider({
 				},
 			});
 		},
+		[preferredWallets, requiredFeatures, walletsApi],
+	);
+
+	useWalletsChanged({
+		onWalletRegistered,
+		onWalletUnregistered,
 	});
 
 	useUnsafeBurnerWallet(enableUnsafeBurner);

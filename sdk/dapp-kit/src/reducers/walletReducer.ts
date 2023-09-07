@@ -58,6 +58,7 @@ export function walletReducer(state: WalletState, { type, payload }: WalletActio
 			if (state.currentWallet?.name === payload.unregisteredWallet.name) {
 				return {
 					...state,
+					wallets: payload.updatedWallets,
 					currentWallet: null,
 					accounts: [],
 					currentAccount: null,

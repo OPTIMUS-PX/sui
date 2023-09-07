@@ -76,13 +76,6 @@ export function useConnectWallet({
 						? connectResult.accounts[0]
 						: null;
 
-				console.log(
-					'HAS RECENT TO CONNECT TO',
-					mostRecentWalletName === wallet.name,
-					mostRecentAccountAddress,
-					connectResult.accounts.map((a) => a.address),
-				);
-
 				// A wallet technically doesn't have to authorize any accounts hence the selected account potentially not existing.
 				dispatch({
 					type: 'wallet-connected',
