@@ -63,11 +63,25 @@ export function useConnectWallet({
 				// When connecting to a wallet, we want to connect to the most recently used wallet account if
 				// that information is present. This allows for a more intuitive connection experience!
 				const hasRecentWalletAccountToConnectTo =
-					mostRecentWalletName === wallet.name && !!mostRecentAccountAddress;
+					connectResult.accounts.length > 0 &&
+					mostRecentWalletName === wallet.name &&
+					!!mostRecentAccountAddress;
+
+				const mostRecentWalletAccount = hasRecentWalletAccountToConnectTo
+					? connectResult.accounts.find((account) => account.address === mostRecentAccountAddress)
+					: undefined;
+
 				const selectedAccount =
-					connectResult.accounts.length > 0 && hasRecentWalletAccountToConnectTo
-						? connectResult.accounts.find((account) => account.address === mostRecentAccountAddress)
-						: connectResult.accounts[0];
+					mostRecentWalletAccount ?? connectResult.accounts.length > 0
+						? connectResult.accounts[0]
+						: null;
+
+				console.log(
+					'HAS RECENT TO CONNECT TO',
+					mostRecentWalletName === wallet.name,
+					mostRecentAccountAddress,
+					connectResult.accounts.map((a) => a.address),
+				);
 
 				// A wallet technically doesn't have to authorize any accounts hence the selected account potentially not existing.
 				dispatch({
