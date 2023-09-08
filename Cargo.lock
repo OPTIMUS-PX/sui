@@ -9455,6 +9455,7 @@ dependencies = [
  "fastcrypto",
  "futures",
  "itertools",
+ "move-core-types",
  "mysten-metrics",
  "prometheus",
  "regex",
