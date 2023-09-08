@@ -13,7 +13,7 @@ import { WalletAlreadyConnectedError, WalletNotFoundError } from '../../errors/w
 import {
 	getMostRecentWalletConnectionInfo,
 	setMostRecentWalletConnectionInfo,
-} from 'dapp-kit/src/utils/walletUtils';
+} from '../../utils/walletUtils.js';
 import { walletMutationKeys } from '../../constants/walletMutationKeys.js';
 
 type ConnectWalletArgs = {
