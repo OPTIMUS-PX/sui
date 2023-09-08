@@ -39,7 +39,10 @@ export function useDisconnectWallet({
 			} catch (error) {
 				// We'll skip error handling here and just report the error to the console since deleting connection
 				// info isn't essential functionality and storage adapters can be plugged in by the consumer.
-				console.error('[dApp-kit] Error: Failed to save wallet connection info to storage.', error);
+				console.error(
+					'[dApp-kit] Error: Failed to remove wallet connection info from storage.',
+					error,
+				);
 			}
 		},
 		...mutationOptions,
