@@ -22,8 +22,9 @@ use std::{
 use sui_protocol_config::{check_limit_by_meter, LimitThresholdCrossed, ProtocolConfig};
 use sui_types::{
     base_types::{MoveObjectType, ObjectID, SequenceNumber, SuiAddress},
+    committee::EpochId,
     error::{ExecutionError, ExecutionErrorKind, VMMemoryLimitExceededSubStatusCode},
-    execution::LoadedChildObjectMetadata,
+    execution::LoadedRuntimeObjectMetadata,
     id::UID,
     metrics::LimitsMetrics,
     object::{MoveObject, Owner},
@@ -91,6 +92,7 @@ pub(crate) struct ObjectRuntimeState {
     events: Vec<(Type, StructTag, Value)>,
     // total size of events emitted so far
     total_events_size: u64,
+    received: LinkedHashMap<ObjectID, LoadedRuntimeObjectMetadata>,
 }
 
 #[derive(Clone)]
@@ -178,6 +180,7 @@ impl<'a> ObjectRuntime<'a> {
         is_metered: bool,
         protocol_config: &ProtocolConfig,
         metrics: Arc<LimitsMetrics>,
+        epoch_id: EpochId,
     ) -> Self {
         let mut input_object_owners = BTreeMap::new();
         let mut root_version = BTreeMap::new();
@@ -200,6 +203,7 @@ impl<'a> ObjectRuntime<'a> {
                 is_metered,
                 LocalProtocolConfig::new(protocol_config),
                 metrics.clone(),
+                epoch_id,
             ),
             test_inventories: TestInventories::new(),
             state: ObjectRuntimeState {
@@ -209,6 +213,7 @@ impl<'a> ObjectRuntime<'a> {
                 transfers: LinkedHashMap::new(),
                 events: vec![],
                 total_events_size: 0,
+                received: LinkedHashMap::new(),
             },
             is_metered,
             local_config: LocalProtocolConfig::new(protocol_config),
@@ -354,6 +359,33 @@ impl<'a> ObjectRuntime<'a> {
             .object_exists_and_has_type(parent, child, child_type)
     }
 
+    pub(super) fn receive_object(
+        &mut self,
+        parent: ObjectID,
+        child: ObjectID,
+        child_version: SequenceNumber,
+        child_ty: &Type,
+        child_layout: &MoveTypeLayout,
+        child_fully_annotated_layout: &MoveTypeLayout,
+        child_move_type: MoveObjectType,
+    ) -> PartialVMResult<Option<ObjectResult<Value>>> {
+        let Some((value, obj_meta)) = self.child_object_store.receive_object(
+            parent,
+            child,
+            child_version,
+            child_ty,
+            child_layout,
+            child_fully_annotated_layout,
+            child_move_type,
+        )? else {
+            return Ok(None);
+        };
+        // NB: It is important that the object only be added to the received set after it has been
+        // fully authenticated and loaded.
+        self.state.received.insert(child, obj_meta);
+        Ok(Some(value))
+    }
+
     pub(crate) fn get_or_fetch_child_object(
         &mut self,
         parent: ObjectID,
@@ -395,7 +427,7 @@ impl<'a> ObjectRuntime<'a> {
     }
 
     pub fn finish(mut self) -> Result<RuntimeResults, ExecutionError> {
-        let loaded_child_objects = self.loaded_child_objects();
+        let loaded_child_objects = self.loaded_runtime_objects();
         let child_effects = self.child_object_store.take_effects();
         self.state.finish(loaded_child_objects, child_effects)
     }
@@ -406,7 +438,7 @@ impl<'a> ObjectRuntime<'a> {
         self.child_object_store.all_active_objects()
     }
 
-    pub fn loaded_child_objects(&self) -> BTreeMap<ObjectID, LoadedChildObjectMetadata> {
+    pub fn loaded_runtime_objects(&self) -> BTreeMap<ObjectID, LoadedRuntimeObjectMetadata> {
         self.child_object_store
             .cached_objects()
             .iter()
@@ -414,14 +446,21 @@ impl<'a> ObjectRuntime<'a> {
                 obj_opt.as_ref().map(|obj| {
                     (
                         *id,
-                        LoadedChildObjectMetadata {
+                        LoadedRuntimeObjectMetadata {
                             version: obj.version(),
                             digest: obj.digest(),
                             storage_rebate: obj.storage_rebate,
+                            previous_transaction: obj.previous_transaction,
                         },
                     )
                 })
             })
+            .chain(
+                self.state
+                    .received
+                    .iter()
+                    .map(|(id, meta)| (*id, meta.clone())),
+            )
             .collect()
     }
 }
@@ -446,7 +485,7 @@ impl ObjectRuntimeState {
     /// - Passes through user events
     pub(crate) fn finish(
         mut self,
-        loaded_child_objects: BTreeMap<ObjectID, LoadedChildObjectMetadata>,
+        loaded_child_objects: BTreeMap<ObjectID, LoadedRuntimeObjectMetadata>,
         child_object_effects: BTreeMap<ObjectID, ChildObjectEffect>,
     ) -> Result<RuntimeResults, ExecutionError> {
         let mut loaded_child_objects: BTreeMap<_, _> = loaded_child_objects
@@ -509,16 +548,12 @@ impl ObjectRuntimeState {
             transfers,
             events: user_events,
             total_events_size: _,
+            received,
         } = self;
+
         // Check new owners from transfers, reports an error on cycles.
         // TODO can we have cycles in the new system?
         check_circular_ownership(transfers.iter().map(|(id, (owner, _, _))| (*id, *owner)))?;
-        // For both written_objects and deleted_ids, we need to mark the loaded child object as modified.
-        // These may not be covered in the child object effects if they are taken out in one PT command and then
-        // transferred/deleted in a different command. Marking them as modified will allow us properly determine their
-        // mutation category in effects.
-        // TODO: This could get error-prone quickly: what if we forgot to mark an object as modified? There may be a cleaner
-        // sulution.
         let written_objects: LinkedHashMap<_, _> = transfers
             .into_iter()
             .map(|(id, (owner, type_, value))| {
@@ -528,8 +563,10 @@ impl ObjectRuntimeState {
                 (id, (owner, type_, value))
             })
             .collect();
-        for deleted_id in deleted_ids.keys() {
-            if let Some(loaded_child) = loaded_child_objects.get_mut(deleted_id) {
+
+        // Any received objects are viewed as modified.
+        for (received_object, _) in received.into_iter() {
+            if let Some(loaded_child) = loaded_child_objects.get_mut(&received_object) {
                 loaded_child.is_modified = true;
             }
         }
