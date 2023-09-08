@@ -20,13 +20,13 @@ describe('useConnectWallet', () => {
 			}),
 			{ wrapper },
 		);
-		result.current.connectWallet.mutate({ walletName: 'Some random wallet' });
+		const { connectWallet, walletInfo } = result.current;
 
-		await waitFor(() =>
-			expect(result.current.connectWallet.error).toBeInstanceOf(WalletNotFoundError),
-		);
+		connectWallet.mutate({ walletName: 'Some random wallet' });
 
-		expect(result.current.walletInfo.connectionStatus).toBe('disconnected');
+		await waitFor(() => expect(connectWallet.error).toBeInstanceOf(WalletNotFoundError));
+
+		expect(walletInfo.connectionStatus).toBe('disconnected');
 	});
 
 	test('that an error is thrown when connecting to a wallet when a connection is already active', async () => {
@@ -40,15 +40,15 @@ describe('useConnectWallet', () => {
 			}),
 			{ wrapper },
 		);
-		result.current.connectWallet.mutate({ walletName: 'Mock Wallet 1' });
+		const { connectWallet } = result.current;
 
-		await waitFor(() => expect(result.current.connectWallet.isSuccess).toBe(true));
+		connectWallet.mutate({ walletName: 'Mock Wallet 1' });
 
-		result.current.connectWallet.mutate({ walletName: 'Some random wallet' });
+		await waitFor(() => expect(connectWallet.isSuccess).toBe(true));
 
-		await waitFor(() =>
-			expect(result.current.connectWallet.error).toBeInstanceOf(WalletAlreadyConnectedError),
-		);
+		connectWallet.mutate({ walletName: 'Some random wallet' });
+
+		await waitFor(() => expect(connectWallet.error).toBeInstanceOf(WalletAlreadyConnectedError));
 
 		act(() => {
 			unregister();
@@ -66,18 +66,18 @@ describe('useConnectWallet', () => {
 			}),
 			{ wrapper },
 		);
+		const { connectWallet, walletInfo } = result.current;
+		const connectFeature = walletInfo.wallets[0].features['standard:connect'];
 
-		const connectFeature = result.current.walletInfo.wallets[0].features['standard:connect'];
 		const mockConnect = connectFeature.connect as Mock;
-
 		mockConnect.mockRejectedValueOnce(() => {
 			throw new Error('User rejected request');
 		});
 
-		result.current.connectWallet.mutate({ walletName: 'Mock Wallet 1' });
+		connectWallet.mutate({ walletName: 'Mock Wallet 1' });
 
-		await waitFor(() => expect(result.current.connectWallet.isError).toBe(true));
-		expect(result.current.walletInfo.connectionStatus).toBe('disconnected');
+		await waitFor(() => expect(connectWallet.isError).toBe(true));
+		expect(walletInfo.connectionStatus).toBe('disconnected');
 
 		act(() => {
 			unregister();
@@ -95,22 +95,23 @@ describe('useConnectWallet', () => {
 			}),
 			{ wrapper },
 		);
+		const { connectWallet, walletInfo } = result.current;
 
-		result.current.connectWallet.mutate({ walletName: 'Mock Wallet 1' });
+		connectWallet.mutate({ walletName: 'Mock Wallet 1' });
 
-		await waitFor(() => expect(result.current.connectWallet.isSuccess).toBe(true));
+		await waitFor(() => expect(connectWallet.isSuccess).toBe(true));
 
-		expect(result.current.walletInfo.currentWallet?.name).toBe('Mock Wallet 1');
-		expect(result.current.walletInfo.accounts).toHaveLength(1);
-		expect(result.current.walletInfo.currentAccount).not.toBeNull();
-		expect(result.current.walletInfo.connectionStatus).toBe('connected');
+		expect(walletInfo.currentWallet?.name).toBe('Mock Wallet 1');
+		expect(walletInfo.accounts).toHaveLength(1);
+		expect(walletInfo.currentAccount).not.toBeNull();
+		expect(walletInfo.connectionStatus).toBe('connected');
 
 		const savedConnectionInfo = window.localStorage.getItem('sui-dapp-kit:wallet-connection-info');
 		expect(savedConnectionInfo).toBeDefined();
 
 		expect(JSON.parse(savedConnectionInfo!)).toStrictEqual({
 			walletName: 'Mock Wallet 1',
-			accountAddress: result.current.walletInfo.currentAccount?.address,
+			accountAddress: walletInfo.currentAccount?.address,
 		});
 
 		act(() => {
