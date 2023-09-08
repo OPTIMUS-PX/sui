@@ -8,6 +8,7 @@ import {
 	WalletAlreadyConnectedError,
 	WalletNotFoundError,
 } from 'dapp-kit/src/errors/walletErrors.js';
+import type { Mock } from 'vitest';
 
 describe('useConnectWallet', () => {
 	test('that an error is thrown when connecting to a non-existent wallet', async () => {
@@ -48,20 +49,42 @@ describe('useConnectWallet', () => {
 		await waitFor(() =>
 			expect(result.current.connectWallet.error).toBeInstanceOf(WalletAlreadyConnectedError),
 		);
-		console.log('STOodofoRAGE', window.localStorage);
 
 		act(() => {
 			unregister();
 		});
 	});
 
-	// connect to wallet A with address ABC + DBE
-	// remove address ABC from wallet --- A-ABC
+	test('that an error is thrown when a user fails to connect their wallet', async () => {
+		const unregister = registerMockWallet('Mock Wallet 1');
 
-	// disconnect
-	// go to dapp and connect
+		const wrapper = createWalletProviderContextWrapper();
+		const { result } = renderHook(
+			() => ({
+				connectWallet: useConnectWallet(),
+				walletInfo: useWallet(),
+			}),
+			{ wrapper },
+		);
 
-	test('that connecting to a wallet works correctly', async () => {
+		const connectFeature = result.current.walletInfo.wallets[0].features['standard:connect'];
+		const mockConnect = connectFeature.connect as Mock;
+
+		mockConnect.mockRejectedValueOnce(() => {
+			throw new Error('User rejected request');
+		});
+
+		result.current.connectWallet.mutate({ walletName: 'Mock Wallet 1' });
+
+		await waitFor(() => expect(result.current.connectWallet.isError).toBe(true));
+		expect(result.current.walletInfo.connectionStatus).toBe('disconnected');
+
+		act(() => {
+			unregister();
+		});
+	});
+
+	test('that connecting to a wallet works successfully', async () => {
 		const unregister = registerMockWallet('Mock Wallet 1');
 
 		const wrapper = createWalletProviderContextWrapper();
@@ -81,13 +104,16 @@ describe('useConnectWallet', () => {
 		expect(result.current.walletInfo.accounts).toHaveLength(1);
 		expect(result.current.walletInfo.currentAccount).not.toBeNull();
 		expect(result.current.walletInfo.connectionStatus).toBe('connected');
-		console.log('STORAGE', window.localStorage);
-		expect(window.localStorage.getItem('dapp-kit:most-recent-wallet-connection-info')).toBe(
-			`Mock Wallet 1-${result.current.walletInfo.currentAccount?.address}`,
-		);
+
+		const savedConnectionInfo = window.localStorage.getItem('sui-dapp-kit:wallet-connection-info');
+		expect(savedConnectionInfo).toBeDefined();
+
+		expect(JSON.parse(savedConnectionInfo!)).toStrictEqual({
+			walletName: 'Mock Wallet 1',
+			accountAddress: result.current.walletInfo.currentAccount?.address,
+		});
 
 		act(() => {
-			result.current.walletInfo.currentWallet?.features['standard:disconnect']?.disconnect();
 			unregister();
 		});
 	});

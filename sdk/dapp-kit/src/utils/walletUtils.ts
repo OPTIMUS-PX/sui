@@ -5,8 +5,6 @@ import type { Wallet, WalletWithSuiFeatures } from '@mysten/wallet-standard';
 import { isWalletWithSuiFeatures } from '@mysten/wallet-standard';
 import type { StorageAdapter } from './storageAdapters.js';
 
-const noSelectedAccountStoragePlaceholder = 'no-selected-account';
-
 export function sortWallets(
 	wallets: readonly Wallet[],
 	preferredWallets: string[],
@@ -39,10 +37,7 @@ export async function setMostRecentWalletConnectionInfo({
 	accountAddress?: string;
 }) {
 	try {
-		await storageAdapter.set(
-			storageKey,
-			`${walletName}-${accountAddress ?? noSelectedAccountStoragePlaceholder}`,
-		);
+		await storageAdapter.set(storageKey, JSON.stringify({ walletName, accountAddress }));
 	} catch (error) {
 		// We'll skip error handling here and just report the error to the console since persisting connection
 		// info isn't essential functionality and storage adapters can be plugged in by the consumer.
@@ -55,16 +50,10 @@ export async function getMostRecentWalletConnectionInfo(
 	storageKey: string,
 ) {
 	try {
-		const lastWalletConnectionInfo = await storageAdapter.get(storageKey);
-		if (lastWalletConnectionInfo) {
-			const [walletName, accountAddress] = lastWalletConnectionInfo.split('-');
-			const isMissingAccountAddress = accountAddress === noSelectedAccountStoragePlaceholder;
-
-			return {
-				walletName,
-				accountAddress: isMissingAccountAddress ? undefined : accountAddress,
-			};
-		}
+		const connectionInfo = await storageAdapter.get(storageKey);
+		return connectionInfo
+			? (JSON.parse(connectionInfo) as { walletName: string; accountAddress?: string })
+			: null;
 	} catch (error) {
 		// We'll skip error handling here and just report the error to the console since retrieving connection
 		// info isn't essential functionality and storage adapters can be plugged in by the consumer.
@@ -73,5 +62,5 @@ export async function getMostRecentWalletConnectionInfo(
 			error,
 		);
 	}
-	return {};
+	return undefined;
 }

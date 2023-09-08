@@ -3,7 +3,11 @@
 
 import type { UseMutationOptions } from '@tanstack/react-query';
 import { useMutation } from '@tanstack/react-query';
-import type { StandardConnectInput, StandardConnectOutput } from '@mysten/wallet-standard';
+import type {
+	StandardConnectInput,
+	StandardConnectOutput,
+	WalletAccount,
+} from '@mysten/wallet-standard';
 import { useWalletContext } from 'dapp-kit/src/components/WalletProvider';
 import { WalletAlreadyConnectedError, WalletNotFoundError } from 'dapp-kit/src/errors/walletErrors';
 import {
@@ -57,29 +61,24 @@ export function useConnectWallet({
 				const connectResult = await wallet.features['standard:connect'].connect(
 					standardConnectInput,
 				);
-				const { walletName: mostRecentWalletName, accountAddress: mostRecentAccountAddress } =
-					await getMostRecentWalletConnectionInfo(storageAdapter, storageKey);
+
+				console.log('DIDNT THIS THROW', connectResult);
 
 				// When connecting to a wallet, we want to connect to the most recently used wallet account if
 				// that information is present. This allows for a more intuitive connection experience!
-				const hasRecentWalletAccountToConnectTo =
-					connectResult.accounts.length > 0 &&
-					mostRecentWalletName === wallet.name &&
-					!!mostRecentAccountAddress;
+				const mostRecentConnectionInfo = await getMostRecentWalletConnectionInfo(
+					storageAdapter,
+					storageKey,
+				);
+				const selectedAccount = getSelectedAccount(
+					walletName,
+					connectResult.accounts,
+					mostRecentConnectionInfo,
+				);
 
-				const mostRecentWalletAccount = hasRecentWalletAccountToConnectTo
-					? connectResult.accounts.find((account) => account.address === mostRecentAccountAddress)
-					: undefined;
-
-				const selectedAccount =
-					mostRecentWalletAccount ?? connectResult.accounts.length > 0
-						? connectResult.accounts[0]
-						: null;
-
-				// A wallet technically doesn't have to authorize any accounts hence the selected account potentially not existing.
 				dispatch({
 					type: 'wallet-connected',
-					payload: { wallet, currentAccount: selectedAccount ?? null },
+					payload: { wallet, currentAccount: selectedAccount },
 				});
 
 				await setMostRecentWalletConnectionInfo({
@@ -91,10 +90,31 @@ export function useConnectWallet({
 
 				return connectResult;
 			} catch (error) {
+				console.log('GOT HERE', error);
 				dispatch({ type: 'wallet-connection-status-updated', payload: 'disconnected' });
 				throw error;
 			}
 		},
 		...mutationOptions,
 	});
+}
+
+function getSelectedAccount(
+	walletName: string,
+	connectedAccounts: readonly WalletAccount[],
+	mostRecentConnectionInfo?: { walletName: string; accountAddress?: string } | null,
+) {
+	if (connectedAccounts.length === 0) {
+		return null;
+	}
+
+	const hasRecentlyConnectedWallet = mostRecentConnectionInfo?.walletName === walletName;
+	if (hasRecentlyConnectedWallet && mostRecentConnectionInfo.accountAddress) {
+		const recentWalletAccount = connectedAccounts.find(
+			(account) => account.address === mostRecentConnectionInfo.accountAddress,
+		);
+		return recentWalletAccount ?? connectedAccounts[0];
+	}
+
+	return connectedAccounts[0];
 }
