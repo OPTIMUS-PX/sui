@@ -27,9 +27,9 @@ type WalletUnregisteredAction = {
 	};
 };
 
-type WalletConnectionStatusUpdatedAction = {
-	type: 'wallet-connection-status-updated';
-	payload: WalletState['connectionStatus'];
+type WalletConnectingAction = {
+	type: 'wallet-connecting';
+	payload?: never;
 };
 
 type WalletConnectedAction = {
@@ -46,7 +46,7 @@ type WalletDisconnectedAction = {
 };
 
 export type WalletAction =
-	| WalletConnectionStatusUpdatedAction
+	| WalletConnectingAction
 	| WalletConnectedAction
 	| WalletDisconnectedAction
 	| WalletRegisteredAction
@@ -76,10 +76,10 @@ export function walletReducer(state: WalletState, { type, payload }: WalletActio
 				wallets: payload.updatedWallets,
 			};
 		}
-		case 'wallet-connection-status-updated':
+		case 'wallet-connecting':
 			return {
 				...state,
-				connectionStatus: payload,
+				connectionStatus: 'connecting',
 			};
 		case 'wallet-connected':
 			return {
