@@ -743,15 +743,15 @@ impl AuthorityStore {
                 //
                 // If there's a more recent version of this object, then it was mutated by someone
                 // else and we can let it through to let the transaction fail at execution.
-                let has_received =
-                    self.have_received_deleted_or_wrapped_object_at_version_or_after(
+                let has_received = self
+                    .get_object(&input_key.id())?
+                    .map(|obj| obj.version() >= input_key.version().unwrap())
+                    .unwrap_or(false)
+                    || self.have_received_deleted_or_wrapped_object_at_version_or_after(
                         &input_key.id(),
                         input_key.version().unwrap(),
                         epoch_store.epoch(),
-                    )? || self
-                        .get_object(&input_key.id())?
-                        .map(|obj| obj.version() >= input_key.version().unwrap())
-                        .unwrap_or(false);
+                    )?;
                 versioned_results.push((*idx, has_received));
             } else {
                 versioned_results.push((*idx, false));
