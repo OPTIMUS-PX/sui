@@ -49,7 +49,7 @@ export function useConnectWallet({
 				);
 			}
 
-			dispatch({ type: 'wallet-connecting' });
+			dispatch({ type: 'wallet-connection-status-updated', payload: 'connecting' });
 
 			try {
 				const connectResult = await wallet.features['standard:connect'].connect(
