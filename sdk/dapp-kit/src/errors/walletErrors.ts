@@ -20,3 +20,13 @@ export class WalletAlreadyConnectedError extends Error {
 		Object.setPrototypeOf(this, WalletAlreadyConnectedError.prototype);
 	}
 }
+
+/**
+ * An error that is instantiated when someone attempts to perform an action that requires an active wallet connection.
+ */
+export class WalletNotConnectedError extends Error {
+	constructor(message: string) {
+		super(message);
+		Object.setPrototypeOf(this, WalletNotConnectedError.prototype);
+	}
+}
