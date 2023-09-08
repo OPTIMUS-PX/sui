@@ -99,11 +99,11 @@ describe('useConnectWallet', () => {
 		await waitFor(() => expect(result.current.connectWallet.isSuccess).toBe(true));
 		expect(result.current.walletInfo.currentWallet?.name).toBe('Mock Wallet 1');
 		expect(result.current.walletInfo.accounts).toHaveLength(1);
-		expect(result.current.walletInfo.currentAccount).not.toBeNull();
+		expect(result.current.walletInfo.currentAccount).toBeTruthy();
 		expect(result.current.walletInfo.connectionStatus).toBe('connected');
 
 		const savedConnectionInfo = window.localStorage.getItem('sui-dapp-kit:wallet-connection-info');
-		expect(savedConnectionInfo).toBeDefined();
+		expect(savedConnectionInfo).toBeTruthy();
 		expect(JSON.parse(savedConnectionInfo!)).toStrictEqual({
 			walletName: 'Mock Wallet 1',
 			accountAddress: result.current.walletInfo.currentAccount?.address,
