@@ -8,7 +8,7 @@ import { WalletAlreadyConnectedError } from 'dapp-kit/src/errors/walletErrors.js
 import type { Mock } from 'vitest';
 
 describe('useConnectWallet', () => {
-	test('that an error is thrown when connecting to a wallet when a connection is already active', async () => {
+	test('throws an error when connecting to a wallet when a connection is already active', async () => {
 		const { unregister, mockWallet } = registerMockWallet('Mock Wallet 1');
 
 		const wrapper = createWalletProviderContextWrapper();
@@ -33,7 +33,7 @@ describe('useConnectWallet', () => {
 		});
 	});
 
-	test('that an error is thrown when a user fails to connect their wallet', async () => {
+	test('throws an error when a user fails to connect their wallet', async () => {
 		const { unregister, mockWallet } = registerMockWallet('Mock Wallet 1');
 
 		const wrapper = createWalletProviderContextWrapper();
@@ -62,7 +62,7 @@ describe('useConnectWallet', () => {
 		});
 	});
 
-	test('that connecting to a wallet works successfully', async () => {
+	test('connecting to a wallet works successfully', async () => {
 		const { unregister, mockWallet } = registerMockWallet('Mock Wallet 1');
 
 		const wrapper = createWalletProviderContextWrapper();
