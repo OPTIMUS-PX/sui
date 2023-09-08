@@ -44,23 +44,3 @@ export async function setMostRecentWalletConnectionInfo({
 		console.error('[dApp-kit] Error: Failed to save wallet connection info to storage.', error);
 	}
 }
-
-export async function getMostRecentWalletConnectionInfo(
-	storageAdapter: StorageAdapter,
-	storageKey: string,
-) {
-	try {
-		const connectionInfo = await storageAdapter.get(storageKey);
-		return connectionInfo
-			? (JSON.parse(connectionInfo) as { walletName: string; accountAddress?: string })
-			: null;
-	} catch (error) {
-		// We'll skip error handling here and just report the error to the console since retrieving connection
-		// info isn't essential functionality and storage adapters can be plugged in by the consumer.
-		console.error(
-			'[dApp-kit] Error: Failed to retrieve wallet connection info from storage.',
-			error,
-		);
-	}
-	return undefined;
-}
