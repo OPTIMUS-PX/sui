@@ -8,13 +8,13 @@ import type {
 	StandardConnectOutput,
 	WalletAccount,
 } from '@mysten/wallet-standard';
-import { useWalletContext } from 'dapp-kit/src/components/WalletProvider';
-import { WalletAlreadyConnectedError, WalletNotFoundError } from 'dapp-kit/src/errors/walletErrors';
+import { useWalletContext } from '../../components/WalletProvider.js';
+import { WalletAlreadyConnectedError, WalletNotFoundError } from '../../errors/walletErrors.js';
 import {
 	getMostRecentWalletConnectionInfo,
 	setMostRecentWalletConnectionInfo,
 } from 'dapp-kit/src/utils/walletUtils';
-import { walletMutationKeys } from 'dapp-kit/src/constants/walletMutationKeys';
+import { walletMutationKeys } from '../../constants/walletMutationKeys.js';
 
 type ConnectWalletArgs = {
 	/** The name of the wallet as defined by the wallet standard to connect to. */
