@@ -35,5 +35,9 @@ export function registerMockWallet(
 	additionalFeatures: IdentifierRecord<unknown> = {},
 ) {
 	const walletsApi = getWallets();
-	return walletsApi.register(new MockWallet(walletName, additionalFeatures));
+	const mockWallet = new MockWallet(walletName, additionalFeatures);
+	return {
+		unregister: walletsApi.register(mockWallet),
+		mockWallet,
+	};
 }

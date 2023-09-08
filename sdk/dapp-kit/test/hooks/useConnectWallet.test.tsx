@@ -4,32 +4,12 @@
 import { renderHook, waitFor, act } from '@testing-library/react';
 import { useConnectWallet, useWallet } from 'dapp-kit/src';
 import { createWalletProviderContextWrapper, registerMockWallet } from '../test-utils.js';
-import {
-	WalletAlreadyConnectedError,
-	WalletNotFoundError,
-} from 'dapp-kit/src/errors/walletErrors.js';
+import { WalletAlreadyConnectedError } from 'dapp-kit/src/errors/walletErrors.js';
 import type { Mock } from 'vitest';
 
 describe('useConnectWallet', () => {
-	test('that an error is thrown when connecting to a non-existent wallet', async () => {
-		const wrapper = createWalletProviderContextWrapper();
-		const { result } = renderHook(
-			() => ({
-				connectWallet: useConnectWallet(),
-				walletInfo: useWallet(),
-			}),
-			{ wrapper },
-		);
-
-		result.current.connectWallet.mutate({ walletName: 'Some random wallet' });
-
-		await waitFor(() =>
-			expect(result.current.connectWallet.error).toBeInstanceOf(WalletNotFoundError),
-		);
-	});
-
 	test('that an error is thrown when connecting to a wallet when a connection is already active', async () => {
-		const unregister = registerMockWallet('Mock Wallet 1');
+		const { unregister, mockWallet } = registerMockWallet('Mock Wallet 1');
 
 		const wrapper = createWalletProviderContextWrapper();
 		const { result } = renderHook(
@@ -40,10 +20,10 @@ describe('useConnectWallet', () => {
 			{ wrapper },
 		);
 
-		result.current.connectWallet.mutate({ walletName: 'Mock Wallet 1' });
+		result.current.connectWallet.mutate({ wallet: mockWallet });
 		await waitFor(() => expect(result.current.connectWallet.isSuccess).toBe(true));
 
-		result.current.connectWallet.mutate({ walletName: 'Some random wallet' });
+		result.current.connectWallet.mutate({ wallet: mockWallet });
 		await waitFor(() =>
 			expect(result.current.connectWallet.error).toBeInstanceOf(WalletAlreadyConnectedError),
 		);
@@ -54,7 +34,7 @@ describe('useConnectWallet', () => {
 	});
 
 	test('that an error is thrown when a user fails to connect their wallet', async () => {
-		const unregister = registerMockWallet('Mock Wallet 1');
+		const { unregister, mockWallet } = registerMockWallet('Mock Wallet 1');
 
 		const wrapper = createWalletProviderContextWrapper();
 		const { result } = renderHook(
@@ -72,7 +52,7 @@ describe('useConnectWallet', () => {
 			throw new Error('User rejected request');
 		});
 
-		result.current.connectWallet.mutate({ walletName: 'Mock Wallet 1' });
+		result.current.connectWallet.mutate({ wallet: mockWallet });
 
 		await waitFor(() => expect(result.current.connectWallet.isError).toBe(true));
 		expect(result.current.walletInfo.connectionStatus).toBe('disconnected');
@@ -83,7 +63,7 @@ describe('useConnectWallet', () => {
 	});
 
 	test('that connecting to a wallet works successfully', async () => {
-		const unregister = registerMockWallet('Mock Wallet 1');
+		const { unregister, mockWallet } = registerMockWallet('Mock Wallet 1');
 
 		const wrapper = createWalletProviderContextWrapper();
 		const { result } = renderHook(
@@ -94,7 +74,7 @@ describe('useConnectWallet', () => {
 			{ wrapper },
 		);
 
-		result.current.connectWallet.mutate({ walletName: 'Mock Wallet 1' });
+		result.current.connectWallet.mutate({ wallet: mockWallet });
 
 		await waitFor(() => expect(result.current.connectWallet.isSuccess).toBe(true));
 		expect(result.current.walletInfo.currentWallet?.name).toBe('Mock Wallet 1');
