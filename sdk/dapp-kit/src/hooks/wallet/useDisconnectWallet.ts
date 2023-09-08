@@ -28,10 +28,15 @@ export function useDisconnectWallet({
 				throw new WalletNotConnectedError('No wallet is connected.');
 			}
 
-			// Wallets aren't required to implement the disconnect feature, so we'll
-			// optionally call the disconnect feature if it exists and reset the UI
-			// state on the frontend at a minimum.
-			await currentWallet.features['standard:disconnect']?.disconnect();
+			try {
+				// Wallets aren't required to implement the disconnect feature, so we'll
+				// optionally call the disconnect feature if it exists and reset the UI
+				// state on the frontend at a minimum.
+				await currentWallet.features['standard:disconnect']?.disconnect();
+			} catch (error) {
+				console.error('Failed to disconnect the application from the current wallet.', error);
+			}
+
 			dispatch({ type: 'wallet-disconnected' });
 
 			try {
