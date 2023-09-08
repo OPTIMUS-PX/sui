@@ -18,8 +18,8 @@ export function createSuiClientContextWrapper(client: SuiClient) {
 export function createWalletProviderContextWrapper(
 	providerProps: Omit<ComponentProps<typeof WalletProvider>, 'children'> = {},
 ) {
+	const queryClient = new QueryClient();
 	return function WalletProviderContextWrapper({ children }: { children: React.ReactNode }) {
-		const queryClient = new QueryClient();
 		return (
 			<SuiClientProvider>
 				<QueryClientProvider client={queryClient}>
