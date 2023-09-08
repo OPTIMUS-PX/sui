@@ -62,8 +62,6 @@ export function useConnectWallet({
 					standardConnectInput,
 				);
 
-				console.log('DIDNT THIS THROW', connectResult);
-
 				// When connecting to a wallet, we want to connect to the most recently used wallet account if
 				// that information is present. This allows for a more intuitive connection experience!
 				const mostRecentConnectionInfo = await getMostRecentWalletConnectionInfo(
@@ -90,7 +88,6 @@ export function useConnectWallet({
 
 				return connectResult;
 			} catch (error) {
-				console.log('GOT HERE', error);
 				dispatch({ type: 'wallet-connection-status-updated', payload: 'disconnected' });
 				throw error;
 			}
