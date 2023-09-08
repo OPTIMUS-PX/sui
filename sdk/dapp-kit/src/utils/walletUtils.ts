@@ -41,6 +41,6 @@ export async function setMostRecentWalletConnectionInfo({
 	} catch (error) {
 		// We'll skip error handling here and just report the error to the console since persisting connection
 		// info isn't essential functionality and storage adapters can be plugged in by the consumer.
-		console.error('[dApp-kit] Error: Failed to save wallet connection info to storage.', error);
+		console.warn('[dApp-kit] Error: Failed to save wallet connection info to storage.', error);
 	}
 }
