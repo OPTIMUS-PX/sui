@@ -6,13 +6,13 @@ import { useWallet } from 'dapp-kit/src';
 import { createWalletProviderContextWrapper, registerMockWallet } from '../test-utils.js';
 
 describe('useWallet', () => {
-	test('that an error is thrown when rendered without a provider', () => {
+	test('throws an error when rendered without a provider', () => {
 		expect(() => renderHook(() => useWallet())).toThrowError(
 			'Could not find WalletContext. Ensure that you have set up the WalletProvider.',
 		);
 	});
 
-	test('that the correct wallet and account information is returned on initial render', () => {
+	test('the correct wallet and account information is returned on initial render', () => {
 		const wrapper = createWalletProviderContextWrapper();
 		const { result } = renderHook(() => useWallet(), { wrapper });
 
@@ -25,7 +25,7 @@ describe('useWallet', () => {
 		});
 	});
 
-	test('that the list of wallets is ordered correctly by preference', () => {
+	test('the list of wallets is ordered correctly by preference', () => {
 		const { unregister: unregister1 } = registerMockWallet('Mock Wallet 1');
 		const { unregister: unregister2 } = registerMockWallet('Mock Wallet 2');
 		const { unregister: unregister3 } = registerMockWallet('Mock Wallet 3');
@@ -45,7 +45,7 @@ describe('useWallet', () => {
 		});
 	});
 
-	test('that the unsafe burner wallet is registered when enableUnsafeBurner is set', async () => {
+	test('the unsafe burner wallet is registered when enableUnsafeBurner is set', async () => {
 		const wrapper = createWalletProviderContextWrapper({
 			enableUnsafeBurner: true,
 		});
@@ -55,7 +55,7 @@ describe('useWallet', () => {
 		expect(walletNames).toStrictEqual(['Unsafe Burner Wallet']);
 	});
 
-	test('that unregistered wallets are removed from the list of wallets', async () => {
+	test('unregistered wallets are removed from the list of wallets', async () => {
 		const { unregister: unregister1 } = registerMockWallet('Mock Wallet 1');
 		const { unregister: unregister2 } = registerMockWallet('Mock Wallet 2');
 		const { unregister: unregister3 } = registerMockWallet('Mock Wallet 3');
@@ -74,7 +74,7 @@ describe('useWallet', () => {
 		});
 	});
 
-	test('that the list of wallets is correctly filtered by required features', () => {
+	test('the list of wallets is correctly filtered by required features', () => {
 		const { unregister: unregister1 } = registerMockWallet('Mock Wallet 1', {
 			'my-dapp:super-cool-feature': {
 				version: '1.0.0',
