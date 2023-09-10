@@ -26,9 +26,9 @@ describe('useWallet', () => {
 	});
 
 	test('the list of wallets is ordered correctly by preference', () => {
-		const { unregister: unregister1 } = registerMockWallet('Mock Wallet 1');
-		const { unregister: unregister2 } = registerMockWallet('Mock Wallet 2');
-		const { unregister: unregister3 } = registerMockWallet('Mock Wallet 3');
+		const { unregister: unregister1 } = registerMockWallet({ walletName: 'Mock Wallet 1' });
+		const { unregister: unregister2 } = registerMockWallet({ walletName: 'Mock Wallet 2' });
+		const { unregister: unregister3 } = registerMockWallet({ walletName: 'Mock Wallet 3' });
 
 		const wrapper = createWalletProviderContextWrapper({
 			preferredWallets: ['Mock Wallet 2', 'Mock Wallet 1'],
@@ -56,9 +56,9 @@ describe('useWallet', () => {
 	});
 
 	test('unregistered wallets are removed from the list of wallets', async () => {
-		const { unregister: unregister1 } = registerMockWallet('Mock Wallet 1');
-		const { unregister: unregister2 } = registerMockWallet('Mock Wallet 2');
-		const { unregister: unregister3 } = registerMockWallet('Mock Wallet 3');
+		const { unregister: unregister1 } = registerMockWallet({ walletName: 'Mock Wallet 1' });
+		const { unregister: unregister2 } = registerMockWallet({ walletName: 'Mock Wallet 2' });
+		const { unregister: unregister3 } = registerMockWallet({ walletName: 'Mock Wallet 3' });
 
 		const wrapper = createWalletProviderContextWrapper();
 		const { result } = renderHook(() => useWallet(), { wrapper });
@@ -75,13 +75,16 @@ describe('useWallet', () => {
 	});
 
 	test('the list of wallets is correctly filtered by required features', () => {
-		const { unregister: unregister1 } = registerMockWallet('Mock Wallet 1', {
-			'my-dapp:super-cool-feature': {
-				version: '1.0.0',
-				superCoolFeature: () => {},
+		const { unregister: unregister1 } = registerMockWallet({
+			walletName: 'Mock Wallet 1',
+			additionalFeatures: {
+				'my-dapp:super-cool-feature': {
+					version: '1.0.0',
+					superCoolFeature: () => {},
+				},
 			},
 		});
-		const { unregister: unregister2 } = registerMockWallet('Mock Wallet 2');
+		const { unregister: unregister2 } = registerMockWallet({ walletName: 'Mock Wallet 2' });
 
 		const wrapper = createWalletProviderContextWrapper({
 			requiredFeatures: ['my-dapp:super-cool-feature'],
