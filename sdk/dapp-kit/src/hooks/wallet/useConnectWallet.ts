@@ -7,8 +7,8 @@ import type { StandardConnectOutput } from '@mysten/wallet-standard';
 import { WalletAlreadyConnectedError } from '../../errors/walletErrors.js';
 import { walletMutationKeys } from '../../constants/walletMutationKeys.js';
 import { useWalletContext } from '../../components/WalletProvider.js';
-import type { ConnectWalletArgs } from 'dapp-kit/src/actions/connectWallet.js';
-import { connectWallet } from 'dapp-kit/src/actions/connectWallet.js';
+import type { ConnectWalletArgs } from '../../actions/connectWallet.js';
+import { connectWallet } from '../../actions/connectWallet.js';
 
 type ConnectWalletResult = StandardConnectOutput;
 
