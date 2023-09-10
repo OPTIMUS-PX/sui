@@ -8,12 +8,20 @@ import { useConnectWallet, useWallet } from 'dapp-kit/src/index.js';
 describe('WalletProvider', () => {
 	test('auto-connecting to a wallet works successfully', async () => {
 		const { unregister, mockWallet } = registerMockWallet('Mock Wallet 1');
-
 		const wrapper = createWalletProviderContextWrapper({
 			autoConnect: true,
 		});
 
-		const { result } = renderHook(
+		// Manually connect to the mock wallet so we have a wallet to auto-connect to
+		const { result: connectResult, unmount } = renderHook(() => useConnectWallet(), { wrapper });
+		connectResult.current.mutate({ wallet: mockWallet });
+		await waitFor(() => expect(connectResult.current.isSuccess).toBe(true));
+
+		// Now unmount our component tree to simulate someone leaving the page
+		unmount();
+
+		// Finally, render our component tree again and auto-connect to our previously connected wallet
+		const { result: autoConnectResult } = renderHook(
 			() => ({
 				connectWallet: useConnectWallet(),
 				walletInfo: useWallet(),
@@ -21,13 +29,8 @@ describe('WalletProvider', () => {
 			{ wrapper },
 		);
 
-		result.current.connectWallet.mutate({ wallet: mockWallet });
-		await waitFor(() => expect(result.current.connectWallet.isSuccess).toBe(true));
-
-		await waitFor(() => {
-			expect(result.current.currentWallet).toBeTruthy();
-		});
-		expect(result.current.currentWallet!.name).toStrictEqual('Mock Wallet 1');
+		await waitFor(() => expect(autoConnectResult.current.walletInfo.currentWallet).toBeTruthy());
+		expect(autoConnectResult.current.walletInfo.currentWallet!.name).toStrictEqual('Mock Wallet 1');
 
 		act(() => unregister());
 	});
