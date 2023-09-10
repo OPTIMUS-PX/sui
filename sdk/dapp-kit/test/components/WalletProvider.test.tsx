@@ -34,7 +34,7 @@ describe('WalletProvider', () => {
 		expect(walletInfoResult.current.currentWallet!.name).toStrictEqual('Mock Wallet 1');
 
 		await waitFor(() => expect(walletInfoResult.current.currentAccount).toBeTruthy());
-		expect(walletInfoResult.current.currentAccount?.address).toStrictEqual(
+		expect(walletInfoResult.current.currentAccount!.address).toStrictEqual(
 			mockWallet.accounts[1].address,
 		);
 
