@@ -30,3 +30,25 @@ export class WalletNotConnectedError extends Error {
 		Object.setPrototypeOf(this, WalletNotConnectedError.prototype);
 	}
 }
+
+/**
+ * An error that is instantiated when someone attempts to perform an action that requires a selected wallet account.
+ * This is more of an edge case stemming from the fact that wallets don't technically require you to authorize any
+ * accounts when connecting a wallet.
+ */
+export class WalletNoAccountSelectedError extends Error {
+	constructor(message: string) {
+		super(message);
+		Object.setPrototypeOf(this, WalletNotConnectedError.prototype);
+	}
+}
+
+/**
+ * An error that is instantiated when someone attempts to perform an action that isn't supported by a wallet.
+ */
+export class WalletFeatureNotSupportedError extends Error {
+	constructor(message: string) {
+		super(message);
+		Object.setPrototypeOf(this, WalletFeatureNotSupportedError.prototype);
+	}
+}

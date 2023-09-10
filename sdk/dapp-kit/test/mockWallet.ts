@@ -11,6 +11,7 @@ export class MockWallet implements Wallet {
 	icon = `data:image/png;base64,` as const;
 	chains = SUI_CHAINS;
 	#walletName: string;
+	#accounts: ReadonlyWalletAccount[];
 	#additionalFeatures: IdentifierRecord<unknown>;
 
 	#connect = vi.fn().mockReturnValue({ accounts: this.accounts });
@@ -20,8 +21,13 @@ export class MockWallet implements Wallet {
 	#signTransactionBlock = vi.fn();
 	#signAndExecuteTransactionBlock = vi.fn();
 
-	constructor(name: string, additionalFeatures: IdentifierRecord<unknown>) {
+	constructor(
+		name: string,
+		accounts: ReadonlyWalletAccount[],
+		additionalFeatures: IdentifierRecord<unknown>,
+	) {
 		this.#walletName = name;
+		this.accounts = accounts;
 		this.#additionalFeatures = additionalFeatures;
 	}
 
@@ -31,13 +37,19 @@ export class MockWallet implements Wallet {
 
 	get accounts() {
 		const keypair = new Ed25519Keypair();
-		const account = new ReadonlyWalletAccount({
+		const account1 = new ReadonlyWalletAccount({
 			address: keypair.getPublicKey().toSuiAddress(),
 			publicKey: keypair.getPublicKey().toSuiBytes(),
 			chains: ['sui:unknown'],
 			features: ['sui:signAndExecuteTransactionBlock', 'sui:signTransactionBlock'],
 		});
-		return [account];
+		const account2 = new ReadonlyWalletAccount({
+			address: keypair.getPublicKey().toSuiAddress(),
+			publicKey: keypair.getPublicKey().toSuiBytes(),
+			chains: ['sui:unknown'],
+			features: ['sui:signAndExecuteTransactionBlock', 'sui:signTransactionBlock'],
+		});
+		return [account1, account2];
 	}
 
 	get features(): IdentifierRecord<unknown> {
