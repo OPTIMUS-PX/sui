@@ -12,25 +12,18 @@ describe('WalletProvider', () => {
 			autoConnect: true,
 		});
 
-		// Manually connect to the mock wallet so we have a wallet to auto-connect to
+		// Manually connect to the mock wallet so we have a wallet to auto-connect to.
 		const { result: connectResult, unmount } = renderHook(() => useConnectWallet(), { wrapper });
 		connectResult.current.mutate({ wallet: mockWallet });
 		await waitFor(() => expect(connectResult.current.isSuccess).toBe(true));
 
-		// Now unmount our component tree to simulate someone leaving the page
+		// Now unmount our component tree to simulate someone leaving the page.
 		unmount();
 
-		// Finally, render our component tree again and auto-connect to our previously connected wallet
-		const { result: autoConnectResult } = renderHook(
-			() => ({
-				connectWallet: useConnectWallet(),
-				walletInfo: useWallet(),
-			}),
-			{ wrapper },
-		);
-
-		await waitFor(() => expect(autoConnectResult.current.walletInfo.currentWallet).toBeTruthy());
-		expect(autoConnectResult.current.walletInfo.currentWallet!.name).toStrictEqual('Mock Wallet 1');
+		// Finally, render our component tree again and auto-connect to our previously connected wallet.
+		const { result: walletInfoResult } = renderHook(() => useWallet(), { wrapper });
+		await waitFor(() => expect(walletInfoResult.current.currentWallet).toBeTruthy());
+		expect(walletInfoResult.current.currentWallet!.name).toStrictEqual('Mock Wallet 1');
 
 		act(() => unregister());
 	});
