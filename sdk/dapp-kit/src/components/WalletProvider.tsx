@@ -36,7 +36,7 @@ interface WalletProviderProps {
 	children: ReactNode;
 }
 
-export interface WalletProviderContext extends WalletState {
+interface WalletProviderContext extends WalletState {
 	dispatch: Dispatch<WalletAction>;
 	storageAdapter: StorageAdapter;
 	storageKey: string;
@@ -100,6 +100,7 @@ export function WalletProvider({
 			return;
 		}
 
+		console.log('RUNNING AUTOCONECT');
 		(async function autoConnectWallet() {
 			const connectionInfo = await getMostRecentWalletConnectionInfo(storageAdapter, storageKey);
 			const { walletName, accountAddress } = connectionInfo || {};
